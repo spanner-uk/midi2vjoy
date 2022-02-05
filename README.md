@@ -94,37 +94,37 @@ Below is an example mapping configuration file.
 # Ensure that the m_type and m_control are the same for each line (i.e. the same midi control)
 # Ensure that the v_id and v_number are different for each line (i.e. one vjoy button for 'up' and a different vjoy button for 'down')
 
-176 1 1 1 repeat  up
-176 1 1 2 repeat  down
-176 2 1 Y
-176	3 1 Z
-176	4 1 RX
-176	5	1	RY
-176	6	1	RZ
-176	7	1	SL0
-176 8 1 SL1
-144	36	1	1
-144	37	1	2
-144	38	1	3
-144	39	1	4
-144	40	1	5
-144	41	1	6
-144	42	1	7
-144	43	1	8
-144	48	1	9
-144	49	1	10
+176  1  1  1  repeat  up
+176  1  1  2  repeat  down
+176  2  1  Y
+176  3  1  Z
+176  4  1  RX
+176  5  1  RY
+176  6  1  RZ
+176  7  1  SL0
+176  8  1  SL1
+144  36  1  1
+144  37  1  2
+144  38  1  3
+144  39  1  4
+144  40  1  5
+144  41  1  6
+144  42  1  7
+144  43  1  8
+144  48  1  9
+144  49  1  10
 
-177 0 2 1
-177 1 2 2
-177 2 2 3
-177 3 2 4
-177 4 2 5
-177 5 2 6
-177 6 2 7
-177 7 2 8
-177 8 2 9
-177 9 2 10
-177 10  2 11
+177  0  2  1
+177  1  2  2
+177  2  2  3
+177  3  2  4
+177  4  2  5
+177  5  2  6
+177  6  2  7
+177  7  2  8
+177  8  2  9
+177  9  2  10
+177  10  2  11
 
 ```
 
