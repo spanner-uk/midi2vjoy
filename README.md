@@ -51,62 +51,80 @@ In the example shown below, I am testing the MIDI interface 1. The axis I moved 
 
 The mapping configuration file is a simple text file. All lines starts with "#" are comments and will be ignored by the parser.
 
-Each mapping line has four numbers. This correspond to mapping an axis or button from MIDI to the corresponding control on the virtual joysticks. The first two numbers are those you recorded in the midi test step above.
+Each mapping line typically has four numbers. This correspond to mapping an axis or button from MIDI to the corresponding control on the virtual joysticks. The first two numbers are those you recorded in the midi test step above.
 
-- m_type: This is 176 for axis and 144 for buttons;
-- m_control: This is the index (the second number you recorded in the testing session for each control);
+- m_type: This is the midi channel number
+- m_control: This is the midi cc number.
 - v_id: The ID of the vJoy device (1, 2, 3, etc.);
 - v_number: The axis name or button number on the vJoy device ("Z" for Z axis, and 3 for Button3).
 
-Below the my mapping configuration file for Xsession-Pro.
+Additionally, you can choose to map a rotary midi control to a repeater rather than an axis.
+
+To do this, duplicate an m_type and m_control pair and append 'repeat up' or 'repeat down'
+For example:
+
+m_type(144) m_control(1) v_id(1) v_number(1) repeat up
+m_type(144) m_control(1) v_id(1) v_number(2) repeat down
+
+In this example, midi channel 144 on cc number 1 will trigger the vjoy device 1, button 1 for any increase in its midi value and will trigger vjoy device 1, button 2 for any decrease in its midi value.
+
+Typically midi buttons report values of 127 for 'on' and 0 for off and midi rotary / axis / analogue controls will report values anwywhere between 0 and 127 depending on where they are set to.
+
+Below is an example mapping configuration file.
 
 ```
-#  Midi to vJoy translation
-#  The format is one line for each control, with tab-separated values,
-#  using the following value ordering:
-#
-#      m_type    m_control    v_id    v_number
-#
-#  m_type is the 176 (slider) or 144 (button).
-#  m_control is the ID of the midi message.
-#  v_id is the vJoystick ID where the MIDI message is translated to.
-#  v_number is the axis or button number MIDI message is contolling.
-#
-#  The m_type and m_control value of each MIDI input can be found
-#  when running the program in test mode. Just push/move the control
-#  and watch the messages showing up on the screen.
-#
-#  The axis may be 'X', 'Y', 'Z', 'RX', 'RY', 'RZ', 'SL0', or 'SL1'.
+# Midi to vJoy translation
+# The format is one line for each control in the format of
+#       m_type  m_control   v_id    v_number
+# m_type is the 176 (slider) or 144 (button).
+# m_control is the ID of the midi message.
+# The m_type and m_control value of each MIDI input can be found
+# when running the program in test mode. Just push/move the control
+# and watch the messages showing up on the screen.
+# v_id is the vJoystick ID where the MIDI message is translated to.
+# v_number is the axis or button number MIDI message is contolling.
+# The axis may be 'X', 'Y', 'Z', 'RX', 'RY', 'RZ', 'SL0', or 'SL1'.
 
-176	12	1	Z
-176	11	1	RX
-176	14	1	RY
-176	15	1	RZ
-176	17	1	SL0
-144	46	1	1
-144	43	1	2
-144	70	1	3
-144	58	1	4
-144	56	1	5
-144	57	1	6
-144	69	1	7
-144	59	1	8
+# A midi rotary can be assigned to repeat button presses as it increases or decreases in value.
+# To accomplish this, add the 'repeat' and 'up' or 'down' to the key
+# For example:
+#       m_type  m_control    v_id    v_number   repeat  up
+#       m_type  m_control    v_id    v_number repeat down
+#
+# Ensure that the m_type and m_control are the same for each line (i.e. the same midi control)
+# Ensure that the v_id and v_number are different for each line (i.e. one vjoy button for 'up' and a different vjoy button for 'down')
 
-176	24	2	Z
-176	25	2	SL0
-176	26	2	SL1
-176	27	2	RX
-176	28	2	RY
-176	29	2	RZ
-144	44	2	1
+176 1 1 1 repeat  up
+176 1 1 2 repeat  down
+176 2 1 Y
+176	3 1 Z
+176	4 1 RX
+176	5	1	RY
+176	6	1	RZ
+176	7	1	SL0
+176 8 1 SL1
+144	36	1	1
+144	37	1	2
+144	38	1	3
+144	39	1	4
+144	40	1	5
+144	41	1	6
+144	42	1	7
+144	43	1	8
+144	48	1	9
+144	49	1	10
 
-176	31	3	Z
-176	32	3	SL0
-176	33	3	SL1
-176	34	3	RX
-176	35	3	RY
-176	36	3	RZ
-144	45	3	1
+177 0 2 1
+177 1 2 2
+177 2 2 3
+177 3 2 4
+177 4 2 5
+177 5 2 6
+177 6 2 7
+177 7 2 8
+177 8 2 9
+177 9 2 10
+177 10  2 11
 
 ```
 
