@@ -62,6 +62,7 @@ def midi_test():
 def read_conf(conf_file):
 	'''Read the configuration file'''
 	table = {}
+	repeaters = {}
 	vids = []
 	with open(conf_file, 'r') as f:
 		for l in f:
@@ -69,11 +70,16 @@ def read_conf(conf_file):
 				continue
 			fs = l.split()
 			key = (int(fs[0]), int(fs[1]))
-			if fs[0] == '144':
-				val = (int(fs[2]), int(fs[3]))
-			else:
+			if len(fs) == 6:
+				#This is a repeater, so append the values to the table or add them as-is if this is the first time we've seen this key.
+				val = (int(fs[2]), fs[3], fs[4], fs[5])
+				if key in table:
+					table[key] = [table[key], val]
+				else:
+					table[key] = val
+			else: 
 				val = (int(fs[2]), fs[3])
-			table[key] = val
+				table[key] = val
 			vid = int(fs[2])
 			if not vid in vids:
 				vids.append(vid)
@@ -136,6 +142,9 @@ def joystick_run():
 		#Initialise history
 		previous_key = None
 		previous_vjoy_device = None
+		value_cache = {}
+		up_vjoy = None
+		down_vjoy = None
 		while True:
 			while midi.poll():
 				ipt = midi.read(1)
@@ -160,21 +169,65 @@ def joystick_run():
 					print(key, '->', opt, reading)
 				if key[0]:
 					# An input
-					# Check if it is configured as an axis or a button
+					# Check if it is configured as an axis or a button or a repeater
 					# Note: We did not check if that axis is defined in vJoy
 					if not opt[1] in axis:
-						# A button input
-						vjoy.SetBtn(reading, opt[0], int(opt[1]))
-						print('Button value sent')
-						previous_key = opt[0]
-						previous_vjoy_device = opt[1]
+						# A button or repeater input.
+						if type(opt) == list:
+							#A repeater!
+							print('A repeater!')
+							#Determine which vjoy is the 'up' key and which vjoy is the 'down' key
+							for element in opt:
+								if element[3] == 'up':
+									up_vjoy = (element[0], element[1])
+								elif element[3] == 'down':
+									down_vjoy = (element[0], element[1])
+								else:
+									print("Repeat up or down key not specified. Ensure the config line includes all of: 'vjoy_device	vjoy_button	rep	up' and 'vjoy_device	vjoy_button	rep	down'")							
+
+							#Check if we've seen this key being pressed before or not.
+							if key in value_cache:
+								#We have seen this key before and have its old value. We can continue.
+								#See if the value is increasing or decreasing:
+								diff = reading - value_cache[key]
+								if diff > 0:
+									#Value is increasing
+									print('Increasing. Activating up repeater.')
+									print(up_vjoy)								
+									#Press the 'up' key
+									vjoy.SetBtn(1, up_vjoy[0], int(up_vjoy[1]))
+									time.sleep(0.001)
+									vjoy.SetBtn(0, up_vjoy[0], int(up_vjoy[1]))
+								elif diff < 0:
+									#Value is decreasing
+									print('Decreasing. Activating down repeater.')		
+									print(down_vjoy)							
+									#Press the 'down' key
+									vjoy.SetBtn(1, down_vjoy[0], int(down_vjoy[1]))
+									time.sleep(0.001)
+									vjoy.SetBtn(0, down_vjoy[0], int(down_vjoy[1]))
+								elif diff == 0:
+									#Value hasn't changed. Do nothing.
+									print('No change')
+							else:
+								#This must be the first time we've seen an input so don't know which direction it is going in.
+								#Will need to wait for another input to take any action.
+								print("First ever input.")							
+							#Record latest button value for future comparison.
+							value_cache[key] = reading					
+						else:
+							#A normal button
+							vjoy.SetBtn(reading, opt[0], int(opt[1]))
+							print('Button value sent')
+							previous_key = opt[0]
+							previous_vjoy_device = opt[1]
 					elif opt[1] in axis:
 						# An Axis Input
 						reading = (reading + 1) << 8
 						vjoy.SetAxis(reading, opt[0], axis[opt[1]])
 						print('Axis value sent')
-				print(opt)
-			time.sleep(0.01)
+			time.sleep(0.001)
+
 	except:
 		#traceback.print_exc()
 		pass
