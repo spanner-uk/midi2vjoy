@@ -61,9 +61,11 @@ Each mapping line typically has four numbers. This correspond to mapping an axis
 Additionally, you can choose to map a rotary midi control to a repeater rather than an axis.
 
 To do this, duplicate an m_type and m_control pair and append 'repeat up' or 'repeat down'
+
 For example:
 
 m_type(144) m_control(1) v_id(1) v_number(1) repeat up
+
 m_type(144) m_control(1) v_id(1) v_number(2) repeat down
 
 In this example, midi channel 144 on cc number 1 will trigger the vjoy device 1, button 1 for any increase in its midi value and will trigger vjoy device 1, button 2 for any decrease in its midi value.
